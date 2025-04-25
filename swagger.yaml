@@ -1,0 +1,249 @@
+openapi: 3.0.3
+info:
+  title: Transactions API
+  description: API pour la gestion des transactions utilisateur
+  version: 1.0.0
+
+paths:
+  /accounts/{accountId}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Récupérer toutes les transactions du mois en cours, pour un compte
+      operationId: getTransactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Identifiant du compte
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des transactions récupérées avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Requête invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Non autorisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Interdit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service indisponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /accounts/{accountId}/transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Récupérer les détails d'une transaction
+      operationId: getTransactionById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Identifiant du compte
+          schema:
+            type: string
+        - name: transactionId
+          in: path
+          required: true
+          description: Identifiant de la transaction
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails de la transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Non autorisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Interdit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service indisponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Transactions
+      summary: Mettre à jour une transaction
+      operationId: updateTransaction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Identifiant du compte
+          schema:
+            type: string
+        - name: transactionId
+          in: path
+          required: true
+          description: Identifiant de la transaction
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionMinimal'
+      responses:
+        '200':
+          description: Transaction mise à jour avec succès
+        '400':
+          description: Requête invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Non autorisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Interdit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Account, Transaction ou Catégorie non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service indisponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        accountId:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date-time
+        description:
+          type: string
+        TransactionCategoryId:
+          type: string
+        TransactionCategory:
+          $ref: '#/components/schemas/TransactionCategory'
+        transactionTypeId:
+          type: string
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+    TransactionMinimal:
+      type: object
+      properties:
+        note:
+          type: string
+        transactionCategoryId:
+          type: string
+    TransactionCategory:
+      type: object
+      properties:
+        id:
+          type: string
+        libelle:
+          type: string
+        active:
+          type: boolean
+        order:
+          type: number
+
+    TransactionType:
+      type: object
+      properties:
+        id:
+          type: string
+        libelle:
+          type: string
+        active:
+          type: boolean
+        order:
+          type: number
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        horodatage:
+          type: string
+          format: date-time
